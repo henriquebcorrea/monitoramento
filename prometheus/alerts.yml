@@ -1,0 +1,63 @@
+groups:
+  - name: kanban_alerts
+    interval: 30s
+    rules:
+      - alert: HighNumberOfCards
+        expr: total_cards > 50
+        for: 5m
+        labels:
+          severity: warning
+          team: operations
+        annotations:
+          summary: "Muitos cards no sistema"
+          description: "Há {{ $value }} cards no sistema Kanban"
+
+      - alert: HighNumberOfBoards
+        expr: total_boards > 10
+        for: 5m
+        labels:
+          severity: warning
+          team: operations
+        annotations:
+          summary: "Muitos boards no sistema"
+          description: "Há {{ $value }} boards no sistema Kanban"
+
+      - alert: HighErrorRate
+        expr: rate(http_request_duration_seconds_count{status_code=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          team: operations
+        annotations:
+          summary: "Alta taxa de erros HTTP"
+          description: "Taxa de erros HTTP 5xx acima de 10% nos últimos 5 minutos"
+
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: operations
+        annotations:
+          summary: "Tempo de resposta lento"
+          description: "O tempo de resposta 95º percentil está acima de 1 segundo"
+
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: operations
+        annotations:
+          summary: "Backend está fora do ar"
+          description: "O serviço backend não está respondendo"
+
+      - alert: HighNumberOfDoneCards
+        expr: cards_by_status{status="done"} > 20
+        for: 5m
+        labels:
+          severity: info
+          team: operations
+        annotations:
+          summary: "Muitos cards concluídos"
+          description: "Há {{ $value }} cards com status 'done' no sistema"
