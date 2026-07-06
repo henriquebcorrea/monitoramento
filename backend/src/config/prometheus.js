@@ -11,15 +11,28 @@ const httpRequestDuration = new promClient.Histogram({
   registers: [register]
 });
 
+const httpRequestsTotal = new promClient.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status'],
+  registers: [register]
+});
+
 const activeUsers = new promClient.Gauge({
-  name: 'active_users_total',
-  help: 'Number of active users',
+  name: 'total_users',
+  help: 'Number of users',
   registers: [register]
 });
 
 const totalBoards = new promClient.Gauge({
   name: 'total_boards',
   help: 'Number of boards',
+  registers: [register]
+});
+
+const totalLists = new promClient.Gauge({
+  name: 'total_lists',
+  help: 'Number of lists',
   registers: [register]
 });
 
@@ -39,8 +52,10 @@ const cardsByStatus = new promClient.Gauge({
 module.exports = {
   register,
   httpRequestDuration,
+  httpRequestsTotal,
   activeUsers,
   totalBoards,
+  totalLists,
   totalCards,
   cardsByStatus
 };

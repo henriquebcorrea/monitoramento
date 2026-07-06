@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const pool = require('./config/database');
-const { register, httpRequestDuration } = require('./config/prometheus');
+const { register, httpRequestDuration, httpRequestsTotal } = require('./config/prometheus');
 const metricsService = require('./services/metricsService');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -21,7 +21,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Middleware to track request duration
+// Middleware to track request duration and total requests
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
@@ -29,6 +29,9 @@ app.use((req, res, next) => {
     httpRequestDuration.observe(
       { method: req.method, route: req.route?.path || req.path, status_code: res.statusCode },
       duration
+    );
+    httpRequestsTotal.inc(
+      { method: req.method, route: req.route?.path || req.path, status: res.statusCode }
     );
   });
   next();

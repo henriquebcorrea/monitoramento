@@ -1,16 +1,20 @@
 const pool = require('../config/database');
-const { activeUsers, totalBoards, totalCards, cardsByStatus } = require('../config/prometheus');
+const { activeUsers, totalBoards, totalCards, totalLists, cardsByStatus } = require('../config/prometheus');
 
 const metricsService = {
   async updateMetrics() {
     try {
-      // Update active users
+      // Update total users
       const usersResult = await pool.query('SELECT COUNT(*) FROM users');
       activeUsers.set(parseInt(usersResult.rows[0].count));
 
       // Update total boards
       const boardsResult = await pool.query('SELECT COUNT(*) FROM boards');
       totalBoards.set(parseInt(boardsResult.rows[0].count));
+
+      // Update total lists
+      const listsResult = await pool.query('SELECT COUNT(*) FROM lists');
+      totalLists.set(parseInt(listsResult.rows[0].count));
 
       // Update total cards
       const cardsResult = await pool.query('SELECT COUNT(*) FROM cards');
